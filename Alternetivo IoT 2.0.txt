@@ -1,0 +1,21 @@
+Analog----
+
+PA0 --> Měření napětí 1
+PA1 --> ADC2
+PA4 --> Měření napětí 2 
+
+Digital---
+PB14 --> D1
+PA12 --> D2
+PA14 --> D3
+PA11 --> BAT
+PB12 --> Rozsah měření
+
+PB15 --> Výstup --reset viz dole
+
+
+zpráva Z DL -- sepnutí jednoho výstupu (PB15) do nuly == HW RESET external
+
+
+++
+==

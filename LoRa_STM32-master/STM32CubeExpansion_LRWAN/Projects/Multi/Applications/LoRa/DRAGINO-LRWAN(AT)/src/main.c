@@ -134,6 +134,7 @@ bool rejoin_status=0;
 bool rejoin_keep_status=0;
 bool MAC_COMMAND_ANS_status=0;
 bool uplink_data_status=0;
+bool batterySaver=0;
 bool measure_cycle_status=0;
 bool downlink_data_status=0;
 bool is_time_to_reply_downlink=0;
@@ -341,57 +342,60 @@ int main( void )
 			{
 				NVIC_SystemReset();
 			}		
-			if(measure_cycle_status==1)
+			if(batterySaver==1)
 			{
-				static sensor_t temp_sensor_data;
-				
-				static uint8_t control_to_send;  
-				static uint32_t COUNT_temp;    //static kvuli budoucim porovnani
-	 
-				PPRINTF("measurement difference code\r\n");
-				
-			
-				BSP_sensor_Read( &control_sensor_data,message_flags);
-				
-				if(mode==11)
+				if(measure_cycle_status==1)
 				{
-					float TRSH=0.2; //Threshold 20% difference
-					int16_t hum_dif=control_sensor_data.hum_sht-temp_sensor_data.hum_sht; //namerene - minule
-					int16_t temp_dif=control_sensor_data.temp_sht-temp_sensor_data.temp_sht; //namerene - minule
-					int16_t wind_p_dif=COUNT-COUNT_temp; //namerene - minule
-					//PPRINTF("humidity difference|THR:%d |%f \r\n",hum_dif,temp_sensor_data.hum_sht*TRSH);
-					//PPRINTF("temperature difference|THR: %d |%f\r\n",temp_dif,temp_sensor_data.temp_sht*TRSH);
-					PPRINTF("wind strength difference|THR: %d |%f\r\n",wind_p_dif,COUNT_temp*TRSH);
-					PPRINTF("Count:%f \r\n",COUNT);
-					if(abs(hum_dif)>(TRSH*temp_sensor_data.hum_sht)
-						||abs(temp_dif)>(TRSH*temp_sensor_data.temp_sht)
-						||abs(wind_p_dif)>(TRSH*COUNT_temp)
-						||COUNT2!=0
-						)
+					static sensor_t temp_sensor_data;
+					
+					static uint8_t control_to_send;  
+					static uint32_t COUNT_temp;    //static kvuli budoucim porovnani
+		 
+					//PPRINTF("measurement difference code\r\n");
+					
+				
+					BSP_sensor_Read( &control_sensor_data,message_flags);
+					
+					if(mode==11)
 					{
-						temp_sensor_data=control_sensor_data;
-						COUNT_temp=COUNT;
-						control_to_send=0;
-						PPRINTF("data jsou useful->posilam\r\n");
-						Send();
+						float TRSH=0.2; //Threshold 20% difference
+						int16_t hum_dif=control_sensor_data.hum_sht-temp_sensor_data.hum_sht; //namerene - minule
+						int16_t temp_dif=control_sensor_data.temp_sht-temp_sensor_data.temp_sht; //namerene - minule
+						int16_t wind_p_dif=COUNT-COUNT_temp; //namerene - minule
+						//PPRINTF("humidity difference|THR:%d |%f \r\n",hum_dif,temp_sensor_data.hum_sht*TRSH);
+						//PPRINTF("temperature difference|THR: %d |%f\r\n",temp_dif,temp_sensor_data.temp_sht*TRSH);
+						PPRINTF("wind strength difference|THR: %d |%f\r\n",wind_p_dif,COUNT_temp*TRSH);
+						PPRINTF("Count:%f \r\n",COUNT);
+						if(abs(hum_dif)>(TRSH*temp_sensor_data.hum_sht)
+							||abs(temp_dif)>(TRSH*temp_sensor_data.temp_sht)
+							||abs(wind_p_dif)>(TRSH*COUNT_temp)
+							||COUNT2!=0
+							)
+						{
+							temp_sensor_data=control_sensor_data;
+							COUNT_temp=COUNT;
+							control_to_send=0;
+							PPRINTF("data jsou useful->posilam\r\n");
+							Send();
+						}
+						else if(control_to_send==3)
+						{
+							temp_sensor_data=control_sensor_data;
+							COUNT_temp=COUNT;
+							//PPRINTF("probehlo 3 mereni bez vetsi zmeny/deste-> posilam\r\n");
+							Send();
+							control_to_send=0;
+						}
+						else
+						{
+							control_to_send+=1;
+							COUNT=0;
+							COUNT2=0;
+							
+						}
 					}
-					else if(control_to_send==3)
-					{
-						temp_sensor_data=control_sensor_data;
-						COUNT_temp=COUNT;
-						//PPRINTF("probehlo 3 mereni bez vetsi zmeny/deste-> posilam\r\n");
-						Send();
-						control_to_send=0;
-					}
-					else
-					{
-						control_to_send+=1;
-						COUNT=0;
-						COUNT2=0;
-						
-					}
+					measure_cycle_status=0;
 				}
-				measure_cycle_status=0;
 			}
 			if((uplink_data_status==1)&&(( LoRaMacState & 0x00000001 ) != 0x00000001)&&(( LoRaMacState & 0x00000010 ) != 0x00000010))
 			{
@@ -962,6 +966,40 @@ static void Send( void )
 			}
 			else if(mode==12)
 			{
+				AppData.Buff[i++] =(int)(sensor_data.oil)>>8;          //oil float (ADC_3)
+		AppData.Buff[i++] =(int)sensor_data.oil;
+		
+		PPRINTF( "jsem v modu 3 a zapisuji data\r\n");
+		
+		AppData.Buff[i++] =(int)(sensor_data.ADC_1)>>8;     
+		AppData.Buff[i++] =(int)(sensor_data.ADC_1);
+		AppData.Buff[i++] =(int)(sensor_data.ADC_2)>>8; 
+		AppData.Buff[i++] =(int)(sensor_data.ADC_2);
+		PPRINTF( "sensordata.oil (ADC3):%f \r\n sensordata.ADC_1:%f\r\n sensordata.ADC_1:%f\r\n",sensor_data.oil,sensor_data.ADC_1,sensor_data.ADC_2);
+		if(exit_temp==0)
+		{
+			switch_status=HAL_GPIO_ReadPin(GPIO_EXTI14_PORT,GPIO_EXTI14_PIN);		
+		}
+		AppData.Buff[i++]=(switch_status<<7)|(sensor_data.in1<<1)|0x08|(exit_temp&0x01);
+	
+		#if defined USE_SHT
+		if(bh1750flags==1)
+		{
+			AppData.Buff[i++] =(sensor_data.illuminance)>>8;      
+			AppData.Buff[i++] =(sensor_data.illuminance);
+			AppData.Buff[i++] = 0x00;   
+			AppData.Buff[i++] = 0x00;				
+		}	
+		else
+		{
+			AppData.Buff[i++] =(int)(sensor_data.temp_sht*10)>>8;      
+			AppData.Buff[i++] =(int)(sensor_data.temp_sht*10);
+			AppData.Buff[i++] =(int)(sensor_data.hum_sht*10)>>8;   
+			AppData.Buff[i++] =(int)(sensor_data.hum_sht*10);
+			}
+		#endif
+		PPRINTF("sensor_data.illuminancce: %f \r\n batterylevel %f \r\n",sensor_data.illuminance,batteryLevel_mV);
+		AppData.Buff[i++] =(int)(batteryLevel_mV/100);	
 			}
 				
 	if(exit_temp==1)

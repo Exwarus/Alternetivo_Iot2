@@ -112,6 +112,7 @@ static uint8_t downlinklens;
 static uint8_t downlink_send[51];
 uint8_t switch_status=0,switch_status2=0,switch_status3=0;
 static uint8_t normal_status=0,normal2_status=0,normal3_status=0;
+bool D1=0, D2=0, D3=0, BAT=0, RANGE=0; //UPSv2 digital inputs
 bool is_check_exit=0;
 bool rxpr_flags=0;
 int exti_flag=0,exti_flag2=0,exti_flag3=0;
@@ -964,43 +965,38 @@ static void Send( void )
 			//PPRINTF("temperature: %f \r\n humidity: %f \r\n batterylevel %f \r\n",sensor_data.temp_sht,sensor_data.hum_sht,batteryLevel_mV/100);
 			AppData.Buff[i++] =(int)(batteryLevel_mV/100);
 			}
-			else if(mode==12)
-			{
-				AppData.Buff[i++] =(int)(sensor_data.oil)>>8;          //oil float (ADC_3)
-		AppData.Buff[i++] =(int)sensor_data.oil;
-		
-		PPRINTF( "jsem v modu 3 a zapisuji data\r\n");
-		
-		AppData.Buff[i++] =(int)(sensor_data.ADC_1)>>8;     
-		AppData.Buff[i++] =(int)(sensor_data.ADC_1);
-		AppData.Buff[i++] =(int)(sensor_data.ADC_2)>>8; 
-		AppData.Buff[i++] =(int)(sensor_data.ADC_2);
-		PPRINTF( "sensordata.oil (ADC3):%f \r\n sensordata.ADC_1:%f\r\n sensordata.ADC_1:%f\r\n",sensor_data.oil,sensor_data.ADC_1,sensor_data.ADC_2);
-		if(exit_temp==0)
+		else if(mode==12)
 		{
-			switch_status=HAL_GPIO_ReadPin(GPIO_EXTI14_PORT,GPIO_EXTI14_PIN);		
+			PPRINTF( "jsem v modu 12 a zapisuji data\r\n");
+			//ANALOG
+			AppData.Buff[i++] =(int)(sensor_data.oil)>>8;          //oil float (ADC_3)
+			AppData.Buff[i++] =(int)sensor_data.oil;
+			AppData.Buff[i++] =(int)(sensor_data.ADC_1)>>8;     
+			AppData.Buff[i++] =(int)(sensor_data.ADC_1);
+			AppData.Buff[i++] =(int)(sensor_data.ADC_2)>>8; 
+			AppData.Buff[i++] =(int)(sensor_data.ADC_2);
+			PPRINTF( "ADC1 (PA0):%f \r\n ADC2 (PA1):%f\r\n ADC3 (PA4):%f\r\n",sensor_data.oil,sensor_data.ADC_1,sensor_data.ADC_2);
+			//DIGITAL
+			D1=sensor_data.in5; //PB14
+			D2=sensor_data.in1;//PA12
+			D3=sensor_data.in3;//PA14
+			BAT=sensor_data.in2;//PA11
+			RANGE=sensor_data.in4;//PB12
+			PPRINTF( "D1 (PB14):%f \r\n D2 (PA12):%f\r\n  D3(PA14):%f\r\n BAT(PFA11):%f\r\n RANGE(PA11):%f\r\n",D1,D2,D3,BAT,RANGE);
+			
+			AppData.Buff[i++]=(D1<<7)|(D2<<6)|(D3<<5)|(BAT<<4)|(RANGE<<3)|1;
+			
+			//I2C
+			#if defined USE_SHT
+				AppData.Buff[i++] =(int)(sensor_data.temp_sht*10)>>8;      
+				AppData.Buff[i++] =(int)(sensor_data.temp_sht*10);
+				AppData.Buff[i++] =(int)(sensor_data.hum_sht*10)>>8;   
+				AppData.Buff[i++] =(int)(sensor_data.hum_sht*10);
+			#endif
+			//BATTERY LEVEL
+			PPRINTF("Battery level(mV)",batteryLevel_mV);
+			AppData.Buff[i++] =(int)(batteryLevel_mV/100);	
 		}
-		AppData.Buff[i++]=(switch_status<<7)|(sensor_data.in1<<1)|0x08|(exit_temp&0x01);
-	
-		#if defined USE_SHT
-		if(bh1750flags==1)
-		{
-			AppData.Buff[i++] =(sensor_data.illuminance)>>8;      
-			AppData.Buff[i++] =(sensor_data.illuminance);
-			AppData.Buff[i++] = 0x00;   
-			AppData.Buff[i++] = 0x00;				
-		}	
-		else
-		{
-			AppData.Buff[i++] =(int)(sensor_data.temp_sht*10)>>8;      
-			AppData.Buff[i++] =(int)(sensor_data.temp_sht*10);
-			AppData.Buff[i++] =(int)(sensor_data.hum_sht*10)>>8;   
-			AppData.Buff[i++] =(int)(sensor_data.hum_sht*10);
-			}
-		#endif
-		PPRINTF("sensor_data.illuminancce: %f \r\n batterylevel %f \r\n",sensor_data.illuminance,batteryLevel_mV);
-		AppData.Buff[i++] =(int)(batteryLevel_mV/100);	
-			}
 				
 	if(exit_temp==1)
 	{

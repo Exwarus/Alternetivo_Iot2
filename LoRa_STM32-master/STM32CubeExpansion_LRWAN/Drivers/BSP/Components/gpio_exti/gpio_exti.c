@@ -175,25 +175,42 @@ void GPIO_EXTI15_IoInit(uint8_t state)
 
 void GPIO_INPUT_IoInit(void)
 {
-	GPIO_InitTypeDef GPIO_InitStruct={0};
-	GPIO_INPUT_CLK_ENABLE();
-	
-	GPIO_InitStruct.Pin = GPIO_INPUT_PIN1;
-	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  HW_GPIO_Init( GPIO_INPUT_PORT, GPIO_INPUT_PIN1, &GPIO_InitStruct );
+    GPIO_INPUT_CLK_ENABLE();   // GPIOA
+    GPIO_INPUT2_CLK_ENABLE();  // GPIOB
+
+    // GPIOA inputs
+    GPIO_InitStruct.Pin  = GPIOA_INPUT_PINS; //PA11,12,14
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HW_GPIO_Init(GPIOA, GPIO_InitStruct.Pin, &GPIO_InitStruct);
+
+    // GPIOB inputs
+    GPIO_InitStruct.Pin  = GPIOB_INPUT_PINS; //PB12,14
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HW_GPIO_Init(GPIOB, GPIO_InitStruct.Pin, &GPIO_InitStruct);
 }
 
 void GPIO_INPUT_DeIoInit(void)
 {
-	GPIO_InitTypeDef GPIO_InitStruct={0};
-	GPIO_INPUT_CLK_ENABLE();
-	
-	GPIO_InitStruct.Pin = GPIO_INPUT_PIN1;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  HW_GPIO_Init( GPIO_INPUT_PORT, GPIO_INPUT_PIN1, &GPIO_InitStruct );
+    // Enable clocks (needed before reconfiguring)
+    GPIO_INPUT_CLK_ENABLE();    // GPIOA
+    GPIO_INPUT2_CLK_ENABLE();   // GPIOB
+
+    // ---- De-init GPIOA pins (PA11, PA12, PA14) ----
+    GPIO_InitStruct.Pin  = GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_14;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HW_GPIO_Init(GPIOA, GPIO_InitStruct.Pin, &GPIO_InitStruct);
+
+    // ---- De-init GPIOB pins (PB12, PB14) ----
+    GPIO_InitStruct.Pin  = GPIO_PIN_12 | GPIO_PIN_14;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HW_GPIO_Init(GPIOB, GPIO_InitStruct.Pin, &GPIO_InitStruct);
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

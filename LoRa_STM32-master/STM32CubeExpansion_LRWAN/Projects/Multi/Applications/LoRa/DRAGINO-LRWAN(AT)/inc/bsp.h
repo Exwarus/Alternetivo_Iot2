@@ -73,7 +73,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 typedef struct{
 	
-  uint8_t   in1;/*GPIO Digital Input 0 or 1*/
+	uint8_t   in1;/*GPIO Digital Input 0 or 1*/
+	uint8_t   in2;
+	uint8_t   in3;
+	uint8_t   in4;
+	uint8_t   in5;
+	
 	
 	float temp1;//DS18B20-1
 

@@ -354,7 +354,14 @@ void BSP_sensor_Read( sensor_t *sensor_data, uint8_t message)
 
 	GPIO_INPUT_IoInit();
   HAL_Delay(5);	
-	sensor_data->in1=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1);
+	sensor_data->in1=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PA12
+	sensor_data->in2=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PA11
+	sensor_data->in3=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PA14
+	
+	sensor_data->in4=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PB12
+	sensor_data->in5=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PB14
+	
+	
 	GPIO_INPUT_DeIoInit();
 	if(message==1)
 	{	
@@ -488,7 +495,7 @@ void  BSP_sensor_Init( void  )
 	
 	 pwr_control_IoInit();		
 	
-	if((mode==1)||(mode==3)||(mode==10)||(mode==11)) //I2C - temperature and humidity
+	if((mode==1)||(mode==3)||(mode==10)||(mode==11)||(mode==12)) //I2C - temperature and humidity
 	{	 
 		 #ifdef USE_SHT
 		 uint8_t txdata1[1]={0xE7},txdata2[2]={0xF3,0x2D};

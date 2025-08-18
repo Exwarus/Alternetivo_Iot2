@@ -241,8 +241,15 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /* ---------------------------  GPIO Digital Input definition -------------------------------*/
 #define GPIO_INPUT_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
-#define GPIO_INPUT_PORT           GPIOA	 
-#define GPIO_INPUT_PIN1           GPIO_PIN_12
+#define GPIO_INPUT2_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define GPIO_INPUT_PORT           GPIOA
+#define GPIO_INPUT_PORT2           GPIOB	 
+
+#define GPIO_INPUT_PIN1  GPIO_PIN_12
+#define GPIOA_INPUT_PINS   (GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_14)
+#define GPIOB_INPUT_PINS   (GPIO_PIN_12 | GPIO_PIN_14)
+
 
 /* ---------------------------  ADC_IN1 definition -------------------------------*/
 #define ADC_IN1_LEVEL_PORT        GPIOA

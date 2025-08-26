@@ -112,7 +112,7 @@ static uint8_t downlinklens;
 static uint8_t downlink_send[51];
 uint8_t switch_status=0,switch_status2=0,switch_status3=0;
 static uint8_t normal_status=0,normal2_status=0,normal3_status=0;
-bool D1=0, D2=0, D3=0, BAT=0, RANGE=0; //UPSv2 digital inputs
+uint8_t D1=0, D2=0, D3=0, BAT=0, RANGE=0; //UPSv2 digital inputs
 bool is_check_exit=0;
 bool rxpr_flags=0;
 int exti_flag=0,exti_flag2=0,exti_flag3=0;
@@ -977,12 +977,17 @@ static void Send( void )
 			AppData.Buff[i++] =(int)(sensor_data.ADC_2);
 			PPRINTF( "ADC1 (PA0):%f \r\n ADC2 (PA1):%f\r\n ADC3 (PA4):%f\r\n",sensor_data.oil,sensor_data.ADC_1,sensor_data.ADC_2);
 			//DIGITAL
-			D1=sensor_data.in5; //PB14
-			D2=sensor_data.in1;//PA12
-			D3=sensor_data.in3;//PA14
-			BAT=sensor_data.in2;//PA11
-			RANGE=sensor_data.in4;//PB12
-			PPRINTF( "D1 (PB14):%f \r\n D2 (PA12):%f\r\n  D3(PA14):%f\r\n BAT(PFA11):%f\r\n RANGE(PA11):%f\r\n",D1,D2,D3,BAT,RANGE);
+//			D1 = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14);
+//			D2 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12);
+//			D3 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_14);
+//			BAT = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11);
+//			RANGE = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12);
+			D1=sensor_data.in5;
+			D2=sensor_data.in1;
+			D3=sensor_data.in3;
+			BAT=sensor_data.in2;
+			RANGE=sensor_data.in4;
+			PPRINTF( "D1 (PB14):%d \r\n D2 (PA12):%d\r\n  D3(PA14):%d\r\n BAT(PA11):%d\r\n RANGE(PB12):%d\r\n", D1, D2, D3, BAT, RANGE);
 			
 			AppData.Buff[i++]=(D1<<7)|(D2<<6)|(D3<<5)|(BAT<<4)|(RANGE<<3)|1;
 			
@@ -1531,6 +1536,31 @@ static void LORA_RxData( lora_AppData_t *AppData )
 				EEPROM_Store_Config();
 				rxpr_flags=1;		
 			}
+			break;
+		}
+		
+		case 0x51: //ADDED HW restart for mode==12 
+		{
+			PPRINTF("prijal jsem kód pro restart 0x51....\r\n");
+			 // 1. Inicializace pinu PB15
+        GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+        // Povolení hodinového signálu pro GPIOB
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        
+        GPIO_InitStruct.Pin  = GPIO_PIN_15;
+        GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD; // Output, open drain
+        GPIO_InitStruct.Pull = GPIO_NOPULL; // Bez pull-up/pull-down
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW; // Nízká rychlost
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        
+        // 2. Nastav pin na logickou 0--> puls(LOW)
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);
+        HAL_Delay(500);
+        
+        // 5. Deinicialization
+        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_15);
+				
 			break;
 		}
 	

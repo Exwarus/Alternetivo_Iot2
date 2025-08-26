@@ -183,13 +183,13 @@ void GPIO_INPUT_IoInit(void)
     // GPIOA inputs
     GPIO_InitStruct.Pin  = GPIOA_INPUT_PINS; //PA11,12,14
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HW_GPIO_Init(GPIOA, GPIO_InitStruct.Pin, &GPIO_InitStruct);
 
     // GPIOB inputs
     GPIO_InitStruct.Pin  = GPIOB_INPUT_PINS; //PB12,14
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HW_GPIO_Init(GPIOB, GPIO_InitStruct.Pin, &GPIO_InitStruct);
 }
 
@@ -208,7 +208,7 @@ void GPIO_INPUT_DeIoInit(void)
     HW_GPIO_Init(GPIOA, GPIO_InitStruct.Pin, &GPIO_InitStruct);
 
     // ---- De-init GPIOB pins (PB12, PB14) ----
-    GPIO_InitStruct.Pin  = GPIO_PIN_12 | GPIO_PIN_14;
+    GPIO_InitStruct.Pin  = GPIO_PIN_12 ;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HW_GPIO_Init(GPIOB, GPIO_InitStruct.Pin, &GPIO_InitStruct);

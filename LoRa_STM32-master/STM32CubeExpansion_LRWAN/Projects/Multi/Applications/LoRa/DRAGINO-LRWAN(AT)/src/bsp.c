@@ -354,12 +354,12 @@ void BSP_sensor_Read( sensor_t *sensor_data, uint8_t message)
 
 	GPIO_INPUT_IoInit();
   HAL_Delay(5);	
-	sensor_data->in1=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PA12
-	sensor_data->in2=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PA11
-	sensor_data->in3=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PA14
+	sensor_data->in1=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_PIN_12); //PA12
+	sensor_data->in2=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_PIN_11); //PA11
+	sensor_data->in3=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_PIN_14); //PA14
 	
-	sensor_data->in4=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PB12
-	sensor_data->in5=HAL_GPIO_ReadPin(GPIO_INPUT_PORT,GPIO_INPUT_PIN1); //PB14
+	sensor_data->in4=HAL_GPIO_ReadPin(GPIO_INPUT_PORT2,GPIO_PIN_12); //PB12
+	sensor_data->in5=HAL_GPIO_ReadPin(GPIO_INPUT_PORT2,GPIO_PIN_14); //PB14
 	
 	
 	GPIO_INPUT_DeIoInit();

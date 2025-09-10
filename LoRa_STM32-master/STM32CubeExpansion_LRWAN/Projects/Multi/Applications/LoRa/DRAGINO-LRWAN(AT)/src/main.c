@@ -977,11 +977,6 @@ static void Send( void )
 			AppData.Buff[i++] =(int)(sensor_data.ADC_2);
 			PPRINTF( "ADC1 (PA0):%f \r\n ADC2 (PA1):%f\r\n ADC3 (PA4):%f\r\n",sensor_data.oil,sensor_data.ADC_1,sensor_data.ADC_2);
 			//DIGITAL
-//			D1 = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14);
-//			D2 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12);
-//			D3 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_14);
-//			BAT = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11);
-//			RANGE = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12);
 			D1=sensor_data.in5;
 			D2=sensor_data.in1;
 			D3=sensor_data.in3;
@@ -989,7 +984,7 @@ static void Send( void )
 			RANGE=sensor_data.in4;
 			PPRINTF( "D1 (PB14):%d \r\n D2 (PA12):%d\r\n  D3(PA14):%d\r\n BAT(PA11):%d\r\n RANGE(PB12):%d\r\n", D1, D2, D3, BAT, RANGE);
 			
-			AppData.Buff[i++]=(D1<<7)|(D2<<6)|(D3<<5)|(BAT<<4)|(RANGE<<3)|1;
+			AppData.Buff[i++]=(D1<<7)|(D2<<6)|(D3<<5)|(BAT<<4)|(RANGE<<3)|0x07; //0x07 fixed 3 last bits as 1 --> to recognize version 
 			
 			//I2C
 			#if defined USE_SHT

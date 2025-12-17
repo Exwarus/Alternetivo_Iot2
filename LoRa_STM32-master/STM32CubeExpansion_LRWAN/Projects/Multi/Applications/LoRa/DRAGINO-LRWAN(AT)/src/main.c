@@ -975,16 +975,16 @@ static void Send( void )
 			AppData.Buff[i++] =(int)(sensor_data.ADC_1);
 			AppData.Buff[i++] =(int)(sensor_data.ADC_2)>>8; 
 			AppData.Buff[i++] =(int)(sensor_data.ADC_2);
-			PPRINTF( "ADC1 (PA0):%f \r\n ADC2 (PA1):%f\r\n ADC3 (PA4):%f\r\n",sensor_data.oil,sensor_data.ADC_1,sensor_data.ADC_2);
+			PPRINTF( "ADC1 (PA0):%f\r\n ADC2 (PA1):%f\r\n ADC3 (PA4):%f\r\n",sensor_data.oil,sensor_data.ADC_1,sensor_data.ADC_2);
 			//DIGITAL
 			D1=sensor_data.in5;
 			D2=sensor_data.in1;
 			D3=sensor_data.in3;
 			BAT=sensor_data.in2;
 			RANGE=sensor_data.in4;
-			PPRINTF( "D1 (PB14):%d \r\n D2 (PA12):%d\r\n  D3(PA14):%d\r\n BAT(PA11):%d\r\n RANGE(PB12):%d\r\n", D1, D2, D3, BAT, RANGE);
+			PPRINTF( "D1 (PB14):%d\r\n D2 (PA12):%d\r\n  D3(PA14):%d\r\n BAT(PA11):%d\r\n RANGE(PB12):%d\r\n", D1, D2, D3, BAT, RANGE);
 			
-			AppData.Buff[i++]=(D1<<7)|(D2<<6)|(D3<<5)|(BAT<<4)|(RANGE<<3)|0x07; //0x07 fixed 3 last bits as 1 --> to recognize version 
+			AppData.Buff[i++]=(D1<<7)|(D2<<6)|(D3<<5)|(BAT<<4)|(RANGE<<3)|0x07; //0x07 fixed 3 last bits as 1 --> to recognize version of board
 			
 			//I2C
 			#if defined USE_SHT
@@ -992,6 +992,7 @@ static void Send( void )
 				AppData.Buff[i++] =(int)(sensor_data.temp_sht*10);
 				AppData.Buff[i++] =(int)(sensor_data.hum_sht*10)>>8;   
 				AppData.Buff[i++] =(int)(sensor_data.hum_sht*10);
+				PPRINTF( "temperature:%f\r\n humidity:%f\r\n",sensor_data.temp_sht*10,sensor_data.hum_sht*10);
 			#endif
 			//BATTERY LEVEL
 			PPRINTF("Battery level(mV)",batteryLevel_mV);
